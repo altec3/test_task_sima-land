@@ -1,0 +1,9 @@
+common:
+  port: 8080
+postgres:
+  database: postgres
+  user: postgres
+  password: postgres
+  host: localhost
+  port: 5432
+  require_ssl: false
