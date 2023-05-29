@@ -5,7 +5,10 @@ from sqlalchemy import CursorResult, exc, Row
 from app.database.schemas import user, role
 
 
-async def UserCreateView(request: Request) -> web.Response:
+# TODO: Реализовать аутентификацию и авторизацию
+# TODO: Перейти на CBV
+# TODO: Реализовать сериализацию данных
+async def user_create(request: Request) -> web.Response:
     """
     201 Created, 400 Bad Request
     """
@@ -39,7 +42,7 @@ async def UserCreateView(request: Request) -> web.Response:
         return web.json_response(data={'status': 'Bad Request', 'detail': e.args}, status=400)
 
 
-async def UsersListView(request) -> web.Response:
+async def users_list(request) -> web.Response:
     async with request.app['db'].connect() as conn:
         users: CursorResult = await conn.execute(user.select())
         users_data = []
@@ -56,7 +59,7 @@ async def UsersListView(request) -> web.Response:
         return web.json_response(data={'status': 'OK', 'users': users_data}, status=200)
 
 
-async def UserRetrieveView(request: Request) -> web.Response:
+async def user_retrieve(request: Request) -> web.Response:
     """
     200 OK, 404 Not Found
     """
@@ -82,7 +85,7 @@ async def UserRetrieveView(request: Request) -> web.Response:
         return web.json_response(data={'status': 'Not Found', 'detail': exception.args}, status=404)
 
 
-async def UserUpdateView(request: Request) -> web.Response:
+async def user_update(request: Request) -> web.Response:
     """
     204 No Content, 400 Bad Request, 404 Not Found
     """
@@ -104,7 +107,7 @@ async def UserUpdateView(request: Request) -> web.Response:
         return web.json_response(data={'status': 'Bad Request', 'detail': exception.args}, status=400)
 
 
-async def UserDeleteView(request: Request) -> web.Response:
+async def user_delete(request: Request) -> web.Response:
     """
     204 No Content, 404 Not Found
     """
@@ -121,7 +124,7 @@ async def UserDeleteView(request: Request) -> web.Response:
         return web.json_response(data={'status': 'Not Found', 'detail': exception.args}, status=404)
 
 
-async def RoleCreateView(request: Request) -> web.Response:
+async def role_create(request: Request) -> web.Response:
     """
     201 Created, 400 Bad Request
     """
@@ -143,7 +146,7 @@ async def RoleCreateView(request: Request) -> web.Response:
         return web.json_response(data={'status': 'Bad Request', 'detail': e.args}, status=400)
 
 
-async def RolesListView(request) -> web.Response:
+async def roles_list(request) -> web.Response:
     async with request.app['db'].connect() as conn:
         roles: CursorResult = await conn.execute(role.select())
         roles_data = []
@@ -155,7 +158,7 @@ async def RolesListView(request) -> web.Response:
         return web.json_response(data={'status': 'OK', 'roles': roles_data}, status=200)
 
 
-async def RoleRetrieveView(request: Request) -> web.Response:
+async def role_retrieve(request: Request) -> web.Response:
     """
     200 OK, 404 Not Found
     """
@@ -175,7 +178,7 @@ async def RoleRetrieveView(request: Request) -> web.Response:
         return web.json_response(data={'status': 'Not Found', 'detail': e.args}, status=404)
 
 
-async def RoleUpdateView(request: Request) -> web.Response:
+async def role_update(request: Request) -> web.Response:
     """
     204 No Content, 400 Bad Request, 404 Not Found
     """
@@ -195,7 +198,7 @@ async def RoleUpdateView(request: Request) -> web.Response:
         return web.json_response(data={'status': 'Bad Request', 'detail': e.args}, status=400)
 
 
-async def RoleDeleteView(request: Request) -> web.Response:
+async def role_delete(request: Request) -> web.Response:
     """
     204 No Content, 404 Not Found
     """
