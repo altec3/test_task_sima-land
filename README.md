@@ -29,8 +29,10 @@ docker run --name psql -e POSTGRES_DB=postgres -e  POSTGRES_PASSWORD=postgres -p
 ```
 где:  
 POSTGRES_DB - имя БД (database),  
-POSTGRES_PASSWORD - пароль для доступа к БД (password).
-4. Запустить web-server:
+POSTGRES_PASSWORD - пароль для доступа к БД (password).  
+4. Создать таблицы в БД:  
+Выполнить скрипт [init_db.py](./app/dao/database/init_db.py)  
+5. Запустить web-server:
 ```python
 python app/main.py
 ```
