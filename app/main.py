@@ -1,6 +1,6 @@
 from aiohttp import web
 
-from database.schemas import pg_context
+from app.dao.database.schemas import pg_context
 from settings import config
 from routes import setup_routes
 

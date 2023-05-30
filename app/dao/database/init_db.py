@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, MetaData
 
-from app.database.schemas import user, role
+from app.dao.database.schemas import user, role
 from app.settings import config
 
 
