@@ -7,3 +7,7 @@ postgres:
   host: localhost
   port: 5432
   require_ssl: false
+hashlib:
+  hash_name: sha256
+  salt: rfrfz-nj cjkm
+  iterations: 100000

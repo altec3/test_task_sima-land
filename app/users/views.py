@@ -3,6 +3,8 @@ from aiohttp.web_request import Request
 from sqlalchemy import CursorResult, exc, Row
 
 from app.database.schemas import user, role
+from app.services.pas import PasService
+from app.settings import config
 
 
 # TODO: Реализовать аутентификацию и авторизацию
@@ -12,7 +14,9 @@ async def user_create(request: Request) -> web.Response:
     """
     201 Created, 400 Bad Request
     """
+    pas_service = PasService(config)
     data: dict = await request.json()
+    data['password'] = await pas_service.encode_password(data.get('password'))
     user_role: str = data.pop('role', None)
     try:
         async with request.app['db'].begin() as conn:
@@ -38,8 +42,8 @@ async def user_create(request: Request) -> web.Response:
                 headers={'Location': str(request.url.joinpath(f'{data["id"]}'))},
                 status=201
             )
-    except Exception as e:
-        return web.json_response(data={'status': 'Bad Request', 'detail': e.args}, status=400)
+    except Exception as exception:
+        return web.json_response(data={'status': 'Bad Request', 'detail': exception.args}, status=400)
 
 
 async def users_list(request) -> web.Response:
