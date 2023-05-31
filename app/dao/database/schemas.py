@@ -22,7 +22,7 @@ user = Table(
     Column('password', String(200), nullable=False),
     Column('date_of_birth', DateTime(), nullable=True),
     Column('created', DateTime(), default=datetime.now()),
-    Column('roles_id', Integer, ForeignKey('roles.id', ondelete='SET NULL'))
+    Column('roles_id', Integer, ForeignKey('roles.id', ondelete='RESTRICT'))
 )
 
 role = Table(

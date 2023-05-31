@@ -2,12 +2,14 @@ from aiohttp import web
 from aiohttp.web_request import Request
 
 from app.dao.role import RoleDAO
+from app.middlewares import login_required
 from app.services.role import RoleService
 
 
 # TODO: Реализовать аутентификацию и авторизацию
 # TODO: Перейти на CBV
 # TODO: Реализовать сериализацию данных
+@login_required
 async def role_create(request: Request) -> web.Response:
     """ Создание роли """
 
@@ -27,6 +29,7 @@ async def role_create(request: Request) -> web.Response:
         )
 
 
+@login_required
 async def roles_list(request: Request) -> web.Response:
     """ Список ролей """
 
@@ -39,6 +42,7 @@ async def roles_list(request: Request) -> web.Response:
         return web.json_response(data={'status': 'OK', 'roles': roles}, status=200)
 
 
+@login_required
 async def role_retrieve(request: Request) -> web.Response:
     """ Роль по id """
 
@@ -54,6 +58,7 @@ async def role_retrieve(request: Request) -> web.Response:
         return web.json_response(data={'status': 'OK', 'data': role_data}, status=200)
 
 
+@login_required
 async def role_update(request: Request) -> web.Response:
     """ Обновление роли """
 
@@ -73,6 +78,7 @@ async def role_update(request: Request) -> web.Response:
         return web.Response(status=204)
 
 
+@login_required
 async def role_delete(request: Request) -> web.Response:
     """ Удаление роли """
 

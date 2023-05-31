@@ -3,11 +3,12 @@ from aiohttp.web_request import Request
 
 from app.dao.role import RoleDAO
 from app.dao.user import UserDAO
+from app.middlewares import login_required
 from app.services.role import RoleService
 from app.services.user import UserService
 
 
-# TODO: Реализовать аутентификацию и авторизацию
+# TODO: Реализовать авторизацию
 # TODO: Перейти на CBV
 # TODO: Реализовать сериализацию данных
 async def user_create(request: Request) -> web.Response:
@@ -43,6 +44,7 @@ async def user_create(request: Request) -> web.Response:
         )
 
 
+@login_required
 async def users_list(request: Request) -> web.Response:
     """ Список пользователей """
 
@@ -55,6 +57,7 @@ async def users_list(request: Request) -> web.Response:
         return web.json_response(data={'status': 'OK', 'users': users}, status=200)
 
 
+@login_required
 async def user_retrieve(request: Request) -> web.Response:
     """ Пользователь по id """
 
@@ -71,6 +74,7 @@ async def user_retrieve(request: Request) -> web.Response:
         return web.json_response(data={'status': 'OK', 'data': user_data}, status=200)
 
 
+@login_required
 async def user_update(request: Request) -> web.Response:
     """ Обновление полей пользователя """
 
@@ -91,6 +95,7 @@ async def user_update(request: Request) -> web.Response:
         return web.Response(status=204)
 
 
+@login_required
 async def user_delete(request: Request) -> web.Response:
     """ Удаление пользователя """
 

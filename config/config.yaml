@@ -11,3 +11,8 @@ hashlib:
   hash_name: sha256
   salt: rfrfz-nj cjkm
   iterations: 100000
+jwt:
+  secret: wgW?9A#?
+  algorithm: HS256
+  exp_min: 30
+  exp_days: 30
