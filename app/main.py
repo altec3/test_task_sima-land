@@ -1,24 +1,36 @@
 from aiohttp import web
+import aiohttp_session
+from aiohttp_session.cookie_storage import EncryptedCookieStorage
+from cryptography import fernet
+import base64
 
 from app.dao.database.schemas import pg_context
-from app.middlewares import check_login
+from app.middlewares import check_auth, check_admin, check_owner_or_admin
 from settings import config
 from routes import setup_routes
 
 
-def setup_config(application):
+def setup_config(application: web.Application) -> None:
     application['config'] = config
 
 
-# Функция настройки приложения
-def setup_app(application: web.Application):
+def setup_session(application: web.Application) -> None:
+    fernet_key: bytes = fernet.Fernet.generate_key()
+    secret_key: bytes = base64.urlsafe_b64decode(fernet_key)
+    aiohttp_session.setup(application, EncryptedCookieStorage(secret_key))
+
+
+def setup_app(application: web.Application) -> None:
     setup_config(application)
     setup_routes(application)
     application.cleanup_ctx.append(pg_context)
+    setup_session(application)
+    application.middlewares.append(check_auth)
+    application.middlewares.append(check_admin)
+    application.middlewares.append(check_owner_or_admin)
 
-
-app = web.Application(middlewares=[check_login])
 
 if __name__ == '__main__':
+    app = web.Application()
     setup_app(app)
     web.run_app(app)

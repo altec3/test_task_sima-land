@@ -51,6 +51,7 @@ class AuthService:
         user: dict = await self._check_credentials(auth_data, is_refresh)
 
         data = {
+            'id': user['id'],
             'username': user['username'],
             'role': user['role'],
         }

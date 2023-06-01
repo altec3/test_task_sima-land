@@ -2,7 +2,7 @@ from aiohttp import web
 
 from views.user import (user_create, users_list, user_update, user_delete, user_retrieve)
 from views.role import (role_create, roles_list, role_update, role_delete, role_retrieve)
-from app.views.auth import login, refresh_login
+from app.views.auth import login, logout, refresh_login
 
 
 def setup_routes(application: web.Application) -> None:
@@ -17,4 +17,5 @@ def setup_routes(application: web.Application) -> None:
     application.router.add_patch(r'/roles/{role_id:\d+}', role_update)
     application.router.add_delete(r'/roles/{role_id:\d+}', role_delete)
     application.router.add_post('/login', login)
-    application.router.add_put('/login/refresh', refresh_login)
+    application.router.add_get('/logout', logout)
+    application.router.add_put('/login', refresh_login)
