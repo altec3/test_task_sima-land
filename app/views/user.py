@@ -1,18 +1,31 @@
 from aiohttp import web
 from aiohttp.web_request import Request
+from aiohttp_pydantic import PydanticView
 
 from app.dao.role import RoleDAO
 from app.dao.user import UserDAO
 from app.middlewares import owner_or_admin_required, admin_required
+from app.views.models import UserRegisterModel, UserEditModel, UserRetrieveModel
 from app.services.role import RoleService
 from app.services.user import UserService
 
 
-async def user_create(request: Request) -> web.Response:
-    """ Создание пользователя """
-
+async def user_register(request: Request) -> web.Response:
+    """
+    ---
+    description: Create a new user with user role.
+    tags:
+    - Users
+    produces:
+    - application/json
+    responses:
+        "201":
+            description: Successful operation. Created
+        "400":
+            description: Bad Request
+    """
     data: dict = await request.json()
-    user_role: str = data.pop('role'.lower(), None)
+    data = UserRegisterModel.validate(data).dict()
 
     async with request.app['db'].begin() as conn:
         role_dao = RoleDAO(conn)
@@ -20,10 +33,7 @@ async def user_create(request: Request) -> web.Response:
         role_service = RoleService(role_dao)
         user_service = UserService(user_dao)
 
-        if user_role:
-            created_role: dict | None = await role_service.create({'role': user_role})
-        else:
-            created_role: dict | None = await role_service.create()
+        created_role: dict | None = await role_service.create()
         if not created_role:
             raise web.HTTPBadRequest()
 
@@ -33,6 +43,7 @@ async def user_create(request: Request) -> web.Response:
         created_user: dict | None = await user_service.create(data)
         if not created_user:
             raise web.HTTPBadRequest()
+        created_user = UserRetrieveModel.validate(created_user).dict()
 
         return web.json_response(
             data={'status': 'Created', 'data': created_user},
@@ -42,74 +53,154 @@ async def user_create(request: Request) -> web.Response:
 
 
 @admin_required
-async def users_list(request: Request) -> web.Response:
-    """ Список пользователей """
+class UsersCollectView(PydanticView):
+    async def get(self) -> web.Response:
+        """
+        ---
+        description: Get list of users.
+        tags:
+        - Users
+        produces:
+        - application/json
+        responses:
+            "200":
+                description: Successful operation
+        """
+        async with self.request.app['db'].connect() as connection:
+            user_dao = UserDAO(connection)
+            user_service = UserService(user_dao)
 
-    async with request.app['db'].connect() as conn:
-        user_dao = UserDAO(conn)
-        user_service = UserService(user_dao)
+            users: list[dict] = await user_service.get_all()
+            users = [UserRetrieveModel.validate(user).dict() for user in users]
 
-        users: list = await user_service.get_all()
+            return web.json_response(data={'status': 'OK', 'users': users}, status=200)
 
-        return web.json_response(data={'status': 'OK', 'users': users}, status=200)
+    async def post(self, user: UserRegisterModel) -> web.Response:
+        """
+        ---
+        description: Create a new user.
+        tags:
+        - Users
+        produces:
+        - application/json
+        responses:
+            "201":
+                description: Successful operation. Created
+            "400":
+                description: Bad Request
+        """
+        data: dict = user.dict(exclude_unset=True)
+
+        async with self.request.app['db'].begin() as connection:
+            user_dao = UserDAO(connection)
+            role_dao = RoleDAO(connection)
+            user_service = UserService(user_dao)
+            role_service = RoleService(role_dao)
+
+            created_role: dict | None = await role_service.create()
+            if not created_role:
+                raise web.HTTPBadRequest()
+
+            roles_id = created_role['id']
+            data['roles_id'] = roles_id
+
+            created_user: dict | None = await user_service.create(data)
+            if not created_user:
+                raise web.HTTPBadRequest()
+            created_user = UserRetrieveModel.validate(created_user).dict()
+
+            return web.json_response(
+                data={'status': 'Created', 'data': created_user},
+                headers={'Location': str(self.request.url.joinpath(f'{created_user["id"]}'))},
+                status=201
+            )
 
 
 @owner_or_admin_required
-async def user_retrieve(request: Request) -> web.Response:
-    """ Пользователь по id """
+class UserItemView(PydanticView):
+    async def get(self, uid: int, /) -> web.Response:
+        """
+        ---
+        description: Get a user by ID.
+        tags:
+        - Users
+        produces:
+        - application/json
+        responses:
+            "200":
+                description: Successful operation
+            "404":
+                description: Not Found
+        """
+        user_id = uid
+        async with self.request.app['db'].connect() as connection:
+            user_dao = UserDAO(connection)
+            user_service = UserService(user_dao)
 
-    user_id = int(request.match_info['user_id'])
-    async with request.app['db'].connect() as conn:
-        user_dao = UserDAO(conn)
-        user_service = UserService(user_dao)
+            user_data: dict | None = await user_service.get_by_id(user_id)
+            if not user_data:
+                raise web.HTTPNotFound()
 
-        user_data = await user_service.get_by_id(user_id)
+            user_data = UserRetrieveModel.validate(user_data).dict()
 
-        if not user_data:
-            raise web.HTTPNotFound()
+            return web.json_response(data={'status': 'OK', 'data': user_data}, status=200)
 
-        return web.json_response(data={'status': 'OK', 'data': user_data}, status=200)
+    async def patch(self, uid: int, /, user: UserEditModel) -> web.Response:
+        """
+        ---
+        description: Update a user by id.
+        tags:
+        - Users
+        responses:
+            "204":
+                description: Successful operation. No Content
+            "400":
+                description: Bad Request
+            "404":
+                description: Not Found
+        """
 
+        data: dict = user.dict(exclude_unset=True)
+        data['id'] = uid
 
-@owner_or_admin_required
-async def user_update(request: Request) -> web.Response:
-    """ Обновление полей пользователя """
+        async with self.request.app['db'].begin() as connection:
+            user_dao = UserDAO(connection)
+            user_service = UserService(user_dao)
 
-    user_id = int(request.match_info['user_id'])
-    data: dict = await request.json()
-    data['id'] = user_id
-    async with request.app['db'].begin() as conn:
-        user_dao = UserDAO(conn)
-        user_service = UserService(user_dao)
+            updated_data: bool | None = await user_service.update(data)
+            if isinstance(updated_data, bool) and not updated_data:
+                raise web.HTTPBadRequest()
+            if not updated_data:
+                raise web.HTTPNotFound()
 
-        updated_data = await user_service.update(data)
+            return web.Response(status=204)
 
-        if isinstance(updated_data, bool) and not updated_data:
-            raise web.HTTPBadRequest()
-        if not updated_data:
-            raise web.HTTPNotFound()
+    async def delete(self, uid: int, /) -> web.Response:
+        """
+        ---
+        description: Delete user by id.
+        tags:
+        - Users
+        responses:
+            "204":
+                description: Successful operation. No Content
+            "404":
+                description: Not Found
+        """
+        user_id = uid
+        async with self.request.app['db'].begin() as connection:
+            role_dao = RoleDAO(connection)
+            user_dao = UserDAO(connection)
+            role_service = RoleService(role_dao)
+            user_service = UserService(user_dao)
 
-        return web.Response(status=204)
+            deleted_user: dict | None = await user_service.delete(user_id)
+            if not deleted_user:
+                raise web.HTTPNotFound
 
+            role_id = deleted_user['roles_id']
+            deleted_role: dict | None = await role_service.delete(role_id)
+            if not deleted_role:
+                raise web.HTTPNotFound
 
-@owner_or_admin_required
-async def user_delete(request: Request) -> web.Response:
-    """ Удаление пользователя """
-
-    user_id = int(request.match_info['user_id'])
-    async with request.app['db'].begin() as conn:
-        role_dao = RoleDAO(conn)
-        user_dao = UserDAO(conn)
-        role_service = RoleService(role_dao)
-        user_service = UserService(user_dao)
-
-        deleted_user: dict | None = await user_service.delete(user_id)
-        if not deleted_user:
-            raise web.HTTPNotFound
-
-        role_id = deleted_user['roles_id']
-        deleted_role: dict | None = await role_service.delete(role_id)
-        if not deleted_role:
-            raise web.HTTPNotFound
-
-        return web.Response(status=204)
+            return web.Response(status=204)

@@ -81,7 +81,7 @@ async def check_owner_or_admin(request: web.Request, handler: _WebHandler) -> we
     is_required: bool = getattr(handler, '__owner_or_admin_required__', False)
     if is_required:
         session = await aiohttp_session.get_session(request)
-        requested_id = int(request.match_info['user_id'])
+        requested_id = int(request.match_info['uid'])
 
         try:
             user_id: int = session['user_id']
