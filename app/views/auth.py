@@ -1,13 +1,13 @@
 import aiohttp_session
 from aiohttp import web
 
-from app.dao.role import RoleDAO
-from app.dao.user import UserDAO
-from app.services.auth import AuthService
-from app.services.pas import PasService
-from app.services.role import RoleService
-from app.services.user import UserService
-from app.settings import config
+from dao.role import RoleDAO
+from dao.user import UserDAO
+from services.auth import AuthService
+from services.pas import PasService
+from services.role import RoleService
+from services.user import UserService
+from settings import config
 
 
 class AuthView(web.View):

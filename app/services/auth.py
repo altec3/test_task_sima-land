@@ -4,9 +4,9 @@ import datetime
 import jwt
 from aiohttp import web
 
-from app.services.pas import PasService
-from app.services.role import RoleService
-from app.services.user import UserService
+from services.pas import PasService
+from services.role import RoleService
+from services.user import UserService
 
 
 class AuthService:

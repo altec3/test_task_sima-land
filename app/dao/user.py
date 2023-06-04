@@ -3,7 +3,7 @@ from typing import Sequence
 from sqlalchemy import CursorResult, Row, exc
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from app.dao.database.schemas import user
+from dao.database.schemas import user
 
 
 class UserDAO:

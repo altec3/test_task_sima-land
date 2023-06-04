@@ -4,8 +4,8 @@ from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from cryptography import fernet
 import base64
 
-from app.dao.database.schemas import pg_context
-from app.middlewares import check_auth, check_admin, check_owner_or_admin
+from dao.database.schemas import pg_context
+from middlewares import check_auth, check_admin, check_owner_or_admin
 from settings import config
 from routes import setup_routes
 
@@ -20,7 +20,7 @@ def setup_session(application: web.Application) -> None:
     aiohttp_session.setup(application, EncryptedCookieStorage(secret_key))
 
 
-def setup_app(application: web.Application) -> None:
+def setup_app(application: web.Application) -> web.Application:
     setup_config(application)
     setup_routes(application)
     application.cleanup_ctx.append(pg_context)
@@ -28,9 +28,9 @@ def setup_app(application: web.Application) -> None:
     application.middlewares.append(check_auth)
     application.middlewares.append(check_admin)
     application.middlewares.append(check_owner_or_admin)
+    return application
 
 
 if __name__ == '__main__':
     app = web.Application()
-    setup_app(app)
-    web.run_app(app)
+    web.run_app(setup_app(app))

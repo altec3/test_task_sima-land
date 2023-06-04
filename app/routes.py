@@ -2,7 +2,7 @@ from aiohttp import web
 
 from views.user import (user_register, UsersCollectView, UserItemView)
 from views.role import (RolesCollectView, RoleItemView)
-from app.views.auth import AuthView, logout
+from views.auth import AuthView, logout
 
 
 def setup_routes(application: web.Application) -> None:

@@ -2,12 +2,12 @@ from aiohttp import web
 from aiohttp.web_request import Request
 from aiohttp_pydantic import PydanticView
 
-from app.dao.role import RoleDAO
-from app.dao.user import UserDAO
-from app.middlewares import owner_or_admin_required, admin_required
-from app.views.models import UserRegisterModel, UserEditModel, UserRetrieveModel
-from app.services.role import RoleService
-from app.services.user import UserService
+from dao.role import RoleDAO
+from dao.user import UserDAO
+from middlewares import owner_or_admin_required, admin_required
+from views.models import UserRegisterModel, UserEditModel, UserRetrieveModel
+from services.role import RoleService
+from services.user import UserService
 
 
 async def user_register(request: Request) -> web.Response:

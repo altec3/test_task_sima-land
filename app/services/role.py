@@ -2,10 +2,10 @@ from typing import Dict, Any, Sequence
 
 from sqlalchemy import Row
 
-from app.dao.role import RoleDAO
-from app.dao.database.schemas import role
-from app.services.pas import PasService
-from app.settings import config
+from dao.role import RoleDAO
+from dao.database.schemas import role
+from services.pas import PasService
+from settings import config
 
 pas_service = PasService(config)
 

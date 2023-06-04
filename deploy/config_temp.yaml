@@ -1,0 +1,20 @@
+common:
+  port: $APP_PORT
+  admin_username: $APP_ADMIN_USERNAME
+  admin_password: $APP_ADMIN_PASSWORD
+postgres:
+  database: $DB_NAME
+  user: $DB_USER
+  password: $DB_PASSWORD
+  host: $DB_HOST
+  port: $DB_PORT
+  require_ssl: $DB_REQUIRE_SSL
+hashlib:
+  hash_name: $HASHLIB_HASH_NAME
+  salt: $HASHLIB_SALT
+  iterations: $HASHLIB_ITERATIONS
+jwt:
+  secret: $JWT_SECRET
+  algorithm: $JWT_ALGORITHM
+  exp_min: $JWT_EXP_MIN
+  exp_days: $JWT_EXP_DAYS

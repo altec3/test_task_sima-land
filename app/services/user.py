@@ -2,10 +2,10 @@ from typing import Dict, Any, Sequence
 
 from sqlalchemy import Row
 
-from app.dao.user import UserDAO
-from app.dao.database.schemas import user
-from app.services.pas import PasService
-from app.settings import config
+from dao.user import UserDAO
+from dao.database.schemas import user
+from services.pas import PasService
+from settings import config
 
 pas_service = PasService(config)
 

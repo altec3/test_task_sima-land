@@ -1,10 +1,10 @@
 from aiohttp import web
 from aiohttp_pydantic import PydanticView
 
-from app.dao.role import RoleDAO
-from app.middlewares import admin_required
-from app.views.models import RoleModel, RoleRetrieveModel
-from app.services.role import RoleService
+from dao.role import RoleDAO
+from middlewares import admin_required
+from views.models import RoleModel, RoleRetrieveModel
+from services.role import RoleService
 
 
 @admin_required

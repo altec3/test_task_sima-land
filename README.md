@@ -11,7 +11,6 @@
 ---
 ### Описание задания
 ...
-* TODO: Упаковать в docker
 * TODO: Реализовать документацию
 
 ---
@@ -19,22 +18,20 @@
 `Требования:`  
 * [обязательно] установленная платформа [Docker](https://docs.docker.com/get-docker/)
 
-1. При необходимости, изменить настройки в файле [config.yaml](./config/config.yaml)
-2. Установить зависимости:
+1. Рядом с файлом *docker-compose.yaml* положить файл *.env* с параметрами приложения (см. файл [.env.example](.env.example)):
+2. Собрать и запустить контейнеры с backend (aiohttp) и базой данных (БД):
 ```python
-pip install poetry
-poetry install
+docker-compose up --build -d
 ```
-3. Запустить образ с PostgreSQL с учетом параметров в файле [config.yaml](./config/config.yaml):
+В результате будет собран и запущен контейнер с работающим приложением, а так же скачан и запущен контейнер с БД PostgreSQL. 
+При запуске приложения будет создан пользователь с админскими правами (логин и пароль из файла *.env*).
+
+Посмотреть список запущенных контейнеров можно командой:
 ```python
-docker run --name psql -e POSTGRES_DB=postgres -e  POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres:14-alpine
+docker-compose ps
 ```
-где:  
-POSTGRES_DB - имя БД (database),  
-POSTGRES_PASSWORD - пароль для доступа к БД (password).  
-4. Создать таблицы в БД:  
-Выполнить скрипт [init_db.py](./app/dao/database/init_db.py)  
-5. Запустить web-server:
+
+Остановить контейнеры:
 ```python
-python app/main.py
+docker-compose down
 ```

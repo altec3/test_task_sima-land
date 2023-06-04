@@ -4,7 +4,7 @@ import aiohttp_session
 from aiohttp import web
 import jwt
 
-from app.settings import config
+from settings import config
 
 _WebHandler = Callable[[web.Request], Awaitable[web.StreamResponse]]
 OPTIONS = config['jwt']
